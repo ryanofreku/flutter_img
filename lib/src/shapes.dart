@@ -83,26 +83,24 @@ class ImageShape extends StatelessWidget {
         ),
       );
     }
-    return Center(
-      child: Container(
-        height: height,
-        width: width,
-        padding: padding,
-        margin: margin,
-        decoration: BoxDecoration(
-          border: border,
-          color: backgroundColor,
-          borderRadius: borderRadius,
-        ),
-        child: ClipRRect(
-          borderRadius: borderRadius ?? BorderRadius.zero,
-          child: colorFilter != null
-              ? ColorFiltered(
-                  colorFilter: colorFilter!,
-                  child: child,
-                )
-              : child,
-        ),
+    return Container(
+      height: height,
+      width: width,
+      padding: padding,
+      margin: margin,
+      decoration: BoxDecoration(
+        border: border,
+        color: backgroundColor,
+        borderRadius: borderRadius,
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.zero,
+        child: colorFilter != null
+            ? ColorFiltered(
+                colorFilter: colorFilter!,
+                child: child,
+              )
+            : child,
       ),
     );
   }
