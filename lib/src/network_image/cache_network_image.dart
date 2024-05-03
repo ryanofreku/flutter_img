@@ -85,6 +85,7 @@ class NetworkImageHandler extends StatefulWidget {
   /// using borderRadius You can add a border to the image
   final BorderRadiusGeometry? borderRadius;
 
+  /// Handle fit of the image
   final BoxFit fit;
 
   @override
@@ -113,6 +114,7 @@ class _NetworkImageHandlerState extends State<NetworkImageHandler>
   bool _isLoading = false;
   bool _isError = false;
   bool isPlaceholderLoaded = false;
+  bool _isFromCache = false;
   File? _imageFile;
   late String _cacheKey;
 
@@ -135,18 +137,28 @@ class _NetworkImageHandlerState extends State<NetworkImageHandler>
 
   Future<void> _loadImage() async {
     try {
-      _setToLoadingAfter15MsIfNeeded();
-
       var file = (await _cacheManager.getFileFromMemory(_cacheKey))?.file;
 
-      file ??= await _cacheManager.getSingleFile(widget.src, key: _cacheKey);
+      if (file == null) {
+        _setToLoadingAfter15MsIfNeeded();
+        file ??= await _cacheManager.getSingleFile(widget.src, key: _cacheKey);
+        _isFromCache = false;
+        _setState();
+      } else {
+        _isFromCache = true;
+        _setState();
+      }
 
       _imageFile = file;
       _isLoading = false;
 
       _setState();
 
-      await _controller.forward();
+      if (_isFromCache) {
+        _controller.value = 1;
+      } else {
+        await _controller.forward();
+      }
     } catch (e) {
       log('CachedNetworkSVGImage: $e');
 
@@ -190,6 +202,9 @@ class _NetworkImageHandlerState extends State<NetworkImageHandler>
     }
 
     if (_isError) return _buildErrorWidget();
+
+    if (_isFromCache) return _returnImage();
+
     return FadeTransition(
       opacity: _animation,
       child: _returnImage(),
